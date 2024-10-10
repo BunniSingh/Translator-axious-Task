@@ -1,8 +1,9 @@
 
-import { useState, useEffect } from "react"
+import { useState, useRef } from "react"
 import countryCodes from './languagesCodes';
 import Language from "./Language";
 import axios from 'axios';
+import { FaCopy } from "react-icons/fa6";
 
 
 const Translator = () => {
@@ -10,6 +11,8 @@ const Translator = () => {
   const [targetLang, setTargetLang] = useState('hi');
   const [sourceText, setSourceText] = useState('');
   const [tranlatedText, setTranlatedText] = useState('');
+
+  const textAreaRef = useRef(null);
 
   const handleClick = async () => {
     let headers = {
@@ -33,6 +36,20 @@ const Translator = () => {
     }
   };
 
+  const copyText = () => {
+    const textArea = textAreaRef.current;
+    if(textArea.defaultValue == '') return;
+    textArea.select();
+    textArea.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(textArea.value)
+    .then(() => {
+      alert('Text copied to clipboard');
+    })
+    .catch(err => {
+      console.error('Error copying text: ', err);
+    });
+  };
+
   return (
     <div className="body-container">
       <div className="container">
@@ -41,10 +58,8 @@ const Translator = () => {
           <div className="left">
             <Language id='source' languages={countryCodes} onChange={(e) => setSourceLang(e.target.value)} value={sourceLang} />
             <textarea
-              name=""
-              id=""
-              // cols="30"
-              // rows="10"
+              name="source"
+              id="inpurSource"
               placeholder="Enter your text here"
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
@@ -54,19 +69,19 @@ const Translator = () => {
           <div className="right">
             <Language id='target' languages={countryCodes} onChange={(e) => setTargetLang(e.target.value)} value={targetLang} />
             <textarea
-              name=""
-              id=""
-              // cols="30"
-              // rows="10"
+              name="target"
+              id="targetOutput"
               placeholder="Get your translated text here"
               value={tranlatedText}
               readOnly
               onChange={(e) => setTranlatedText(e.target.value)}
+              ref={textAreaRef}
             />
+            <button className="copyBtn" onClick={copyText}><FaCopy className="icon"/></button>
           </div>
         </div>
         <div className="btn">
-          <button onClick={handleClick}>Translate</button>
+          <button className="result-btn" onClick={handleClick}>Translate</button>
         </div>
       </div>
     </div>
